@@ -1,3 +1,11 @@
+[project]
+name = "sudoku-cli"
+version = "0.1.0"
+description = "Command-line Sudoku game with puzzle generation and validation."
+readme = "README.md"
+requires-python = ">=3.10"
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+addopts = "--cov=sudoku_cli"
