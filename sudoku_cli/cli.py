@@ -2,7 +2,7 @@ from typing import Callable, Optional
 
 from sudoku_cli.commands import CommandParser
 from sudoku_cli.generator import SudokuGenerator
-
+from sudoku_cli.game import SudokuGame
 
 
 def run_cli(
@@ -16,19 +16,28 @@ def run_cli(
 
     while True:
         generated = generator.generate()
+        game = SudokuGame(generated)
 
         output_fn("Welcome to Sudoku!\n")
         output_fn("Here is your puzzle:")
-        output_fn(generated.puzzle_grid)
+        output_fn(game.render_grid())
 
         while True:
-            prompt = "\nEnter command (e.g., A3 4, C5 clear, hint, check, quit): "
+            prompt = "\nEnter command (e.g., A3 4, C5 clear, hint, check, quit):\n"
             raw_command = input_fn(prompt)
             command = parser.parse(raw_command)
-            # handle command
+            result = game.handle_command(command)
+            output_fn(result.message)
 
-            # check if should quit or if puzzle done
+            if result.should_quit:
+                return
 
             output_fn("\nCurrent grid:")
-            output_fn(generated.puzzle_grid)
+            output_fn(game.render_grid())
 
+            if result.puzzle_completed:
+                again = input_fn("Press Enter to play again or type 'quit' to exit:\n")
+                if again.strip().lower() == "quit":
+                    output_fn("Thanks for playing!")
+                    return
+                break
