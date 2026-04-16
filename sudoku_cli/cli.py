@@ -10,14 +10,14 @@ def run_cli(
     input_fn: Callable[[str], str] = input,
     output_fn: Callable[[str], None] = print,
     seed: Optional[int] = None,
-    generator: Optional[SudokuGenerator] = None,
 ) -> None:
     parser = CommandParser()
-    generator = generator or SudokuGenerator(seed=seed)
+    solver = SudokuSolver()
+    generator = SudokuGenerator(solver=solver, seed=seed)
 
     while True:
         generated = generator.generate()
-        game = SudokuGame(generated=generated, solver=SudokuSolver(), seed=seed)
+        game = SudokuGame(generated=generated, solver=solver, seed=seed)
 
         output_fn("Welcome to Sudoku!\n")
         output_fn("Here is your puzzle:")

@@ -3,6 +3,7 @@ from typing import Optional
 from dataclasses import dataclass
 
 from sudoku_cli.models import Coord, Grid
+from sudoku_cli.solver import SudokuSolver
 
 
 @dataclass(frozen=True)
@@ -12,26 +13,30 @@ class GeneratedPuzzle:
     pre_filled: set[Coord]
 
 
-
 class SudokuGenerator:
-    def __init__(self, seed: Optional[int] = None, clues: int = 30) -> None:
+    def __init__(self, solver: SudokuSolver, seed: Optional[int] = None, clues: int = 30, max_generation_attempts: int = 30) -> None:
         self._random = random.Random(seed)
         self._clues = clues
+        self._solver = solver
+        self._max_generation_attempts = max_generation_attempts
 
     def generate(self) -> GeneratedPuzzle:
-        solution = self._generate_full_solution()
-        puzzle = self._carve_grid(solution)
-        pre_filled = {
-            (row, col)
-            for row in range(9)
-            for col in range(9)
-            if puzzle[row][col] != 0
-        }
-        return GeneratedPuzzle(
-            puzzle_grid=[row[:] for row in puzzle],
-            solution_grid=[row[:] for row in solution],
-            pre_filled=pre_filled,
-        )
+        for _ in range(self._max_generation_attempts):
+            solution = self._generate_full_solution()
+            puzzle = self._carve_unique_solution_grid(solution)
+            if puzzle is not None:
+                pre_filled = {
+                    (row, col)
+                    for row in range(9)
+                    for col in range(9)
+                    if puzzle[row][col] != 0
+                }
+                return GeneratedPuzzle(
+                    puzzle_grid=[row[:] for row in puzzle],
+                    solution_grid=[row[:] for row in solution],
+                    pre_filled=pre_filled,
+                )
+        raise RuntimeError(f"Failed to generate a unique Sudoku puzzle after multiple attempts.")
 
     def _generate_full_solution(self) -> Grid:
         grid: Grid = [[0 for _ in range(9)] for _ in range(9)]
@@ -53,20 +58,6 @@ class SudokuGenerator:
                 grid[row][col] = numbers[pointer]
                 pointer += 1
 
-    def _is_safe(self, grid: Grid, row: int, col: int, num: int) -> bool:
-        if any(grid[row][idx] == num for idx in range(9)):
-            return False
-        if any(grid[idx][col] == num for idx in range(9)):
-            return False
-
-        row_start = row - row % 3
-        col_start = col - col % 3
-        for r in range(row_start, row_start + 3):
-            for c in range(col_start, col_start + 3):
-                if grid[r][c] == num:
-                    return False
-        return True
-
     def _fill_remaining(self, grid: Grid) -> bool:
         empty = self._find_empty(grid)
         if empty is None:
@@ -76,7 +67,7 @@ class SudokuGenerator:
         numbers = list(range(1, 10))
         self._random.shuffle(numbers)
         for num in numbers:
-            if self._is_safe(grid, row, col, num):
+            if self._solver.is_safe(grid, row, col, num):
                 grid[row][col] = num
                 if self._fill_remaining(grid):
                     return True
@@ -90,7 +81,7 @@ class SudokuGenerator:
                     return row, col
         return None
 
-    def _carve_grid(self, grid: Grid) -> Optional[Grid]:
+    def _carve_unique_solution_grid(self, grid: Grid) -> Optional[Grid]:
         puzzle = [row[:] for row in grid]
         cells = [(row, col) for row in range(9) for col in range(9)]
         self._random.shuffle(cells)
@@ -101,8 +92,15 @@ class SudokuGenerator:
         for row, col in cells:
             if removed >= target_remove:
                 break
+
+            backup = puzzle[row][col]
             puzzle[row][col] = 0
-            removed += 1
+            solutions = self._solver.count_solutions(puzzle, limit=2)
+            if solutions == 1:
+                removed += 1
+            else:
+                puzzle[row][col] = backup
+
         if removed == target_remove:
             return puzzle
         return None
