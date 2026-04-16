@@ -2,6 +2,9 @@
 
 A Command-line Sudoku game with puzzle generation and validation.
 
+[![CI](https://github.com/frederickpek/sudoku/actions/workflows/python-app.yml/badge.svg)](https://github.com/frederickpek/sudoku/actions/workflows/python-app.yml)
+[![Coverage](https://codecov.io/gh/frederickpek/sudoku/branch/master/graph/badge.svg)](https://codecov.io/gh/frederickpek/sudoku)
+
 <img width="614" height="407" alt="image" src="https://github.com/user-attachments/assets/c7e0aacd-2c2d-4a91-9270-abfa231447e2" />
 
 ## Environment
