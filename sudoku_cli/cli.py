@@ -3,6 +3,7 @@ from typing import Callable, Optional
 from sudoku_cli.commands import CommandParser
 from sudoku_cli.generator import SudokuGenerator
 from sudoku_cli.game import SudokuGame
+from sudoku_cli.solver import SudokuSolver
 
 
 def run_cli(
@@ -16,7 +17,7 @@ def run_cli(
 
     while True:
         generated = generator.generate()
-        game = SudokuGame(generated)
+        game = SudokuGame(generated=generated, solver=SudokuSolver())
 
         output_fn("Welcome to Sudoku!\n")
         output_fn("Here is your puzzle:")

@@ -11,7 +11,7 @@ from sudoku_cli.commands import (
 )
 from sudoku_cli.models import Board, Coord
 from sudoku_cli.generator import GeneratedPuzzle
-
+from sudoku_cli.solver import SudokuSolver, Violation
 
 @dataclass(frozen=True)
 class GameResult:
@@ -21,9 +21,10 @@ class GameResult:
 
 
 class SudokuGame:
-    def __init__(self, generated: GeneratedPuzzle) -> None:
+    def __init__(self, generated: GeneratedPuzzle, solver: SudokuSolver) -> None:
         self._board = Board(generated.puzzle_grid, generated.pre_filled)
         self._solution = [row[:] for row in generated.solution_grid]
+        self._solver = solver
 
     def handle_command(self, command: Command) -> GameResult:
         if isinstance(command, QuitCommand):
@@ -76,7 +77,10 @@ class SudokuGame:
         return GameResult(f"Cell {coord} cleared.")
 
     def _handle_check(self) -> GameResult:
-        return GameResult("Check not implemented.")
+        violation = self._solver.first_violation(self._board.grid)
+        if not violation:
+            return GameResult("No rule violations detected.")
+        return GameResult(violation.message)
 
     def _handle_hint(self) -> GameResult:
         return GameResult("Hint not implemented.")
