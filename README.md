@@ -2,6 +2,8 @@
 
 A Command-line Sudoku game with puzzle generation and validation.
 
+<img width="614" height="407" alt="image" src="https://github.com/user-attachments/assets/c7e0aacd-2c2d-4a91-9270-abfa231447e2" />
+
 ## Environment
 
 - Python 3.10+ (tested on Linux)
