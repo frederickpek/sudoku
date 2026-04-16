@@ -1,4 +1,5 @@
 import re
+from sudoku_cli.models import Coord
 
 
 class Command:
@@ -60,7 +61,7 @@ class CommandParser:
 
         return InvalidCommand("Invalid command format. Use e.g., A3 4, C5 clear, hint, check, quit.")
 
-    def _parse_coord(self, row_char: str, col_char: str) -> tuple[int, int]:
+    def _parse_coord(self, row_char: str, col_char: str) -> Coord:
         row = ord(row_char.upper()) - ord("A")
         col = int(col_char) - 1
         return row, col

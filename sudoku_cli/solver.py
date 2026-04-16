@@ -1,6 +1,7 @@
+from typing import Optional
 from dataclasses import dataclass
 
-from sudoku_cli.models import Grid
+from sudoku_cli.models import Coord, Grid
 
 
 @dataclass(frozen=True)
@@ -9,7 +10,7 @@ class Violation:
 
 
 class SudokuSolver:
-    def first_violation(self, grid: Grid) -> Violation | None:
+    def first_violation(self, grid: Grid) -> Optional[Violation]:
         row_violation = self._row_violation(grid)
         if row_violation:
             return row_violation
@@ -20,7 +21,7 @@ class SudokuSolver:
 
         return self._subgrid_violation(grid)
 
-    def _row_violation(self, grid: Grid) -> Violation | None:
+    def _row_violation(self, grid: Grid) -> Optional[Violation]:
         for row in range(9):
             seen: set[int] = set()
             for col in range(9):
@@ -32,7 +33,7 @@ class SudokuSolver:
                 seen.add(value)
         return None
 
-    def _column_violation(self, grid: Grid) -> Violation | None:
+    def _column_violation(self, grid: Grid) -> Optional[Violation]:
         for col in range(9):
             seen: set[int] = set()
             for row in range(9):
@@ -44,7 +45,7 @@ class SudokuSolver:
                 seen.add(value)
         return None
 
-    def _subgrid_violation(self, grid: Grid) -> Violation | None:
+    def _subgrid_violation(self, grid: Grid) -> Optional[Violation]:
         for row_start in range(0, 9, 3):
             for col_start in range(0, 9, 3):
                 seen: set[int] = set()
@@ -72,7 +73,7 @@ class SudokuSolver:
                     return False
         return True
 
-    def _find_empty(self, grid: Grid) -> tuple[int, int] | None:
+    def _find_empty(self, grid: Grid) -> Optional[Coord]:
         for row in range(9):
             for col in range(9):
                 if grid[row][col] == 0:

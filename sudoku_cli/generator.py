@@ -74,7 +74,7 @@ class SudokuGenerator:
                 grid[row][col] = 0
         return False
 
-    def _find_empty(self, grid: Grid) -> tuple[int, int] | None:
+    def _find_empty(self, grid: Grid) -> Optional[Coord]:
         for row in range(9):
             for col in range(9):
                 if grid[row][col] == 0:
