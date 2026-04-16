@@ -17,7 +17,7 @@ def run_cli(
 
     while True:
         generated = generator.generate()
-        game = SudokuGame(generated=generated, solver=SudokuSolver())
+        game = SudokuGame(generated=generated, solver=SudokuSolver(), seed=seed)
 
         output_fn("Welcome to Sudoku!\n")
         output_fn("Here is your puzzle:")

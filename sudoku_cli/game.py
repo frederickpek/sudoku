@@ -1,3 +1,5 @@
+import random
+from typing import Optional
 from dataclasses import dataclass
 
 from sudoku_cli.commands import (
@@ -21,10 +23,11 @@ class GameResult:
 
 
 class SudokuGame:
-    def __init__(self, generated: GeneratedPuzzle, solver: SudokuSolver) -> None:
+    def __init__(self, generated: GeneratedPuzzle, solver: SudokuSolver, seed: Optional[int] = None) -> None:
         self._board = Board(generated.puzzle_grid, generated.pre_filled)
         self._solution = [row[:] for row in generated.solution_grid]
         self._solver = solver
+        self._random = random.Random(seed)
 
     def handle_command(self, command: Command) -> GameResult:
         if isinstance(command, QuitCommand):
@@ -83,7 +86,23 @@ class SudokuGame:
         return GameResult(violation.message)
 
     def _handle_hint(self) -> GameResult:
-        return GameResult("Hint not implemented.")
+        violation = self._solver.first_violation(self._board.grid)
+        if violation is not None:
+            return GameResult(f"Hint: There exists a violation.")
+
+        empties = self._board.editable_empty_cells()
+        if not empties:
+            return GameResult(f"Hint: No empty cells available.")
+
+        if len(empties) == 1:
+            # just to avoid filling in the last cell and puzzle being completed
+            return GameResult(f"Hint: You don't need a hint for this one!")
+
+        target = self._random.choice(empties)
+        row, col = target
+        hint_value = self._solution[row][col]
+        self._board.set_user_value(row, col, hint_value) # just set it for user
+        return GameResult(f"Hint: Cell {self._coord_label(target)} = {hint_value}")
 
     def _is_completed(self) -> bool:
         return self._board.grid == self._solution

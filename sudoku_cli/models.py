@@ -32,3 +32,11 @@ class Board:
             return False
         self._grid[row][col] = 0
         return True
+
+    def editable_empty_cells(self) -> list[Coord]:
+        cells: list[Coord] = []
+        for row in range(9):
+            for col in range(9):
+                if self._grid[row][col] == 0 and not self.is_pre_filled(row, col):
+                    cells.append((row, col))
+        return cells
