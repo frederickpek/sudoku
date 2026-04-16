@@ -31,8 +31,8 @@ A Command-line Sudoku game with puzzle generation and validation.
 Enter project root.
 
 ```bash
-python -m virtualenv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -45,7 +45,7 @@ python main.py
 To generate the same puzzle again for debugging or sharing, pass a seed:
 
 ```bash
-python main.py -s 123
+python main.py --s 123
 ```
 
 ## Run Tests
